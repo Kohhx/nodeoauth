@@ -1,32 +1,17 @@
 const express = require("express");
+const bodyParser = require('body-parser')
 require("dotenv").config();
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
+require('./services/passport')
+
+const authRoutes = require("./routes/auth-routes")
+
+// Initialize Express App
 const app = express();
 
-// Passport Config
-passport.use(
-  new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENTID,
-    clientSecret: process.env.GOOGLE_SECRETKEY,
-    callbackURL: "/auth/google/callback",
-  },
-  (accessToken, refreshToken, profile, done) => {
-    console.log("access Token", accessToken);
-    console.log("Refresh Token", refreshToken);
-    console.log("profile", profile);
-  })
-);
+// Middle ware to handle Routes
+app.use(authRoutes)
 
-app.get(
-  "/auth/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  })
-);
-
-app.get('/auth/google/callback', passport.authenticate('google'))
-
+// Assign port and listen
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
